@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NexusBank AI Decision Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#eef4f8;
+  --panel:#ffffff;
+  --panel-soft:#f7fafc;
+  --border:#d8e2ec;
+  --text:#172033;
+  --muted:#5d6a7e;
+  --accent:#127475;
+  --accent-dark:#0d5c5d;
+  --danger:#c94c4c;
+  --warning:#d28a2d;
+  --shadow:0 18px 40px rgba(23, 32, 51, 0.08);
+  --font-head:'Manrope',sans-serif;
+  --font-body:'Inter',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  background:linear-gradient(180deg,#f7fbfd 0%,var(--bg) 100%);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+}
+header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 28px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(216,226,236,.8);
+}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{
+  width:42px;height:42px;border-radius:12px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--accent),#51a3a3);
+  color:#fff;font-weight:800;font-family:var(--font-head);
+}
+.brand-name{font-family:var(--font-head);font-size:1.15rem;font-weight:800}
+.brand-sub{font-size:.76rem;color:var(--muted)}
+.layout{display:flex;min-height:calc(100vh - 79px)}
+.sidebar{
+  width:230px;
+  padding:22px 14px;
+  border-right:1px solid var(--border);
+  background:rgba(255,255,255,.82);
+}
+.nav-item{
+  width:100%;
+  padding:12px 14px;
+  border:none;
+  background:transparent;
+  border-radius:12px;
+  text-align:left;
+  font:600 .82rem var(--font-body);
+  color:var(--muted);
+  cursor:pointer;
+  transition:.2s;
+}
+.nav-item + .nav-item{margin-top:8px}
+.nav-item:hover{background:#eef6f6;color:var(--text)}
+.nav-item.active{background:var(--accent);color:#fff;box-shadow:0 10px 24px rgba(18,116,117,.22)}
+.main-content{flex:1;padding:24px}
+.container{max-width:1260px;margin:0 auto}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.section-title{
+  display:flex;align-items:center;gap:10px;
+  font:700 1rem var(--font-head);
+  margin-bottom:14px;
+}
+.section-title::after{content:"";flex:1;height:1px;background:var(--border)}
+.section-sub{font-size:.78rem;color:var(--muted);margin:-4px 0 16px}
+.grid-2{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.panel,.stat-card{
+  background:var(--panel);
+  border:1px solid rgba(216,226,236,.7);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+}
+.panel{padding:22px}
+.stat-card{padding:18px}
+.stat-label{font-size:.75rem;color:var(--muted);margin-bottom:8px}
+.stat-value{font:800 1.85rem var(--font-head);color:var(--accent)}
+.stat-sub{font-size:.76rem;color:var(--muted);margin-top:4px}
+.pill{
+  display:inline-flex;align-items:center;
+  padding:4px 10px;border-radius:999px;
+  font-size:.72rem;font-weight:700;
+}
+.pill.ok{background:rgba(18,116,117,.1);color:var(--accent)}
+.pill.bad{background:rgba(201,76,76,.12);color:var(--danger)}
+.pill.warn{background:rgba(210,138,45,.14);color:var(--warning)}
+.form-row{display:flex;gap:12px;flex-wrap:wrap}
+.form-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:160px}
+label{font-size:.74rem;font-weight:600;color:var(--muted)}
+input,select{
+  width:100%;
+  padding:11px 12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  color:var(--text);
+  font:500 .87rem var(--font-body);
+  outline:none;
+  transition:.18s;
+}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(18,116,117,.1)}
+.button-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{
+  padding:11px 16px;
+  border:none;
+  border-radius:10px;
+  font:700 .8rem var(--font-body);
+  cursor:pointer;
+  transition:.2s;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-ghost{background:#fff;color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{border-color:rgba(201,76,76,.35);color:var(--danger)}
+.server-metrics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.server-card{
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--panel-soft);
+}
+.server-card h4{font:700 .95rem var(--font-head);margin-bottom:12px}
+.flow{display:flex;flex-direction:column;gap:0}
+.flow-step{
+  position:relative;
+  padding:12px 0 12px 20px;
+  margin-left:10px;
+  border-left:2px solid var(--border);
+}
+.flow-step::before{
+  content:"";
+  position:absolute;
+  left:-6px;top:18px;
+  width:10px;height:10px;border-radius:50%;
+  background:#fff;border:2px solid var(--border);
+}
+.flow-step.active{border-color:var(--accent)}
+.flow-step.active::before{background:var(--accent);border-color:var(--accent)}
+.flow-step.done{border-color:var(--accent)}
+.flow-step.done::before{background:var(--accent);border-color:var(--accent)}
+.flow-step.error{border-color:var(--danger)}
+.flow-step.error::before{background:var(--danger);border-color:var(--danger)}
+.step-label{font-size:.79rem;font-weight:800}
+.step-detail{margin-top:4px;font-size:.78rem;color:var(--muted)}
+.decision-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.decision-card{
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--panel-soft);
+}
+.decision-title{
+  font-size:.66rem;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.decision-val{font:800 1.1rem var(--font-head)}
+.status-banner{
+  padding:14px;
+  border-radius:12px;
+  margin-bottom:16px;
+  text-align:center;
+  font-weight:800;
+  display:none;
+}
+.status-banner.ok{display:block;background:rgba(18,116,117,.1);color:var(--accent);border:1px solid rgba(18,116,117,.18)}
+.status-banner.bad{display:block;background:rgba(201,76,76,.1);color:var(--danger);border:1px solid rgba(201,76,76,.2)}
+.status-banner.info{display:block;background:rgba(18,116,117,.08);color:var(--accent);border:1px solid rgba(18,116,117,.16)}
+.metrics-grid,.perf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.metric-card,.perf-card{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#fff;
+}
+.metric-card.selected{border-color:var(--accent);box-shadow:0 8px 20px rgba(18,116,117,.12)}
+.metric-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.metric-name{font:700 .88rem var(--font-head)}
+.metric-score{font-size:.78rem;color:var(--accent);font-weight:800}
+.metric-line{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);margin-top:4px}
+.risk-wrap{display:flex;align-items:center;gap:14px}
+.risk-num{font:800 2.3rem var(--font-head)}
+.risk-num.low{color:var(--accent)}
+.risk-num.med{color:var(--warning)}
+.risk-num.high{color:var(--danger)}
+.bar{height:8px;border-radius:999px;background:#e7eef4;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#5db0af);width:0%;transition:width .35s ease}
+.bar-fill.danger{background:linear-gradient(90deg,var(--warning),var(--danger))}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{padding:12px 10px;border-bottom:1px solid var(--border);text-align:left}
+th{font-size:.74rem;color:var(--muted);font-weight:700}
+tbody tr:hover td{background:rgba(247,250,252,.9)}
+.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.76rem}
+.chain-list{display:flex;flex-direction:column;gap:10px}
+.chain-block{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:12px;
+  align-items:center;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--panel-soft);
+}
+.chain-index{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),#51a3a3);
+  color:#fff;display:grid;place-items:center;
+  font:800 .78rem var(--font-head);
+}
+.verify-result,.anomaly-result{
+  margin-top:16px;padding:16px;border-radius:14px;border:1px solid var(--border);display:none
+}
+.toast-wrap{position:fixed;top:18px;right:18px;z-index:40;display:flex;flex-direction:column;gap:8px}
+.toast{
+  min-width:240px;
+  padding:12px 14px;
+  border-radius:12px;
+  background:#fff;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+  font-size:.8rem;
+}
+.toast.info{border-color:rgba(18,116,117,.18)}
+.toast.success{border-color:rgba(18,116,117,.26);background:#f4fbfb}
+.toast.error{border-color:rgba(201,76,76,.28);background:#fff7f7}
+.architecture{
+  padding:18px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#ffffff 0%,#f2fbfb 100%);
+  border:1px solid var(--border);
+  color:var(--muted);
+  line-height:1.8;
+  font-size:.82rem;
+}
+.architecture strong{color:var(--text)}
+.mt{margin-top:20px}
+.mb{margin-bottom:16px}
+.ft-chain{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.ft-step{
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  gap:10px;
+  align-items:start;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#fff;
+}
+.ft-step.ft-ok{border-color:rgba(18,116,117,.3);background:rgba(18,116,117,.05)}
+.ft-step.ft-fail{border-color:rgba(201,76,76,.3);background:rgba(201,76,76,.05)}
+.ft-step.ft-warn{border-color:rgba(210,138,45,.3);background:rgba(210,138,45,.05)}
+.ft-num{
+  width:28px;height:28px;border-radius:50%;
+  display:grid;place-items:center;
+  font:800 .8rem var(--font-head);
+  background:var(--border);color:var(--muted);
+}
+.ft-step.ft-ok .ft-num{background:var(--accent);color:#fff}
+.ft-step.ft-fail .ft-num{background:var(--danger);color:#fff}
+.ft-step.ft-warn .ft-num{background:var(--warning);color:#fff}
+.ft-info{min-width:0}
+.ft-server{font:700 .9rem var(--font-head)}
+.ft-action{font-size:.76rem;color:var(--muted);margin-top:2px}
+.ft-reasons{font-size:.72rem;color:var(--muted);margin-top:4px;word-break:break-word}
+.ft-badge{font:700 .7rem var(--font-body);padding:3px 8px;border-radius:999px;white-space:nowrap;align-self:center}
+.ft-badge.ok{background:rgba(18,116,117,.12);color:var(--accent)}
+.ft-badge.fail{background:rgba(201,76,76,.12);color:var(--danger)}
+.ft-badge.warn{background:rgba(210,138,45,.14);color:var(--warning)}
+.ft-log{
+  margin-top:10px;padding:10px 12px;
+  border-radius:10px;
+  font-size:.78rem;font-weight:600;
+}
+.ft-log.ok{background:rgba(18,116,117,.08);color:var(--accent);border:1px solid rgba(18,116,117,.18)}
+.ft-log.fail{background:rgba(201,76,76,.08);color:var(--danger);border:1px solid rgba(201,76,76,.2)}
+.ft-log.warn{background:rgba(210,138,45,.08);color:var(--warning);border:1px solid rgba(210,138,45,.2)}
+@media (max-width: 1180px){
+  .grid-2,.grid-4,.server-metrics-grid{grid-template-columns:1fr}
+}
+@media (max-width: 900px){
+  header{padding:16px 18px}
+  .layout{display:block}
+  .sidebar{
+    width:auto;
+    border-right:none;
+    border-bottom:1px solid var(--border);
+    padding:14px;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+  }
+  .nav-item + .nav-item{margin-top:0}
+  .main-content{padding:18px}
+  .decision-grid,.grid-3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">NB</div>
+    <div>
+      <div class="brand-name">NexusBank</div>
+      <div class="brand-sub">AI decision simulator with blockchain-backed transaction logging</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <button class="nav-item active" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="nav-item" onclick="switchTab('send')">Send Transaction</button>
+    <button class="nav-item" onclick="switchTab('transactions')">Transaction Log</button>
+    <button class="nav-item" onclick="window.location.href='/algorithms'">Algorithms</button>
+    <button class="nav-item" onclick="switchTab('blockchain')">Blockchain</button>
+    <button class="nav-item" onclick="switchTab('verify')">Verify</button>
+    <button class="nav-item" onclick="switchTab('anomaly')">Anomaly Check</button>
+  </aside>
+
+  <main class="main-content">
+    <div class="container">
+      <div class="tab-content active" id="tab-dashboard">
+        <div class="section-title">Overview</div>
+        <div class="grid-4 mb">
+          <div class="stat-card">
+            <div class="stat-label">Total Transactions</div>
+            <div class="stat-value" id="kpiTotal">0</div>
+            <div class="stat-sub">all recorded attempts</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Volume</div>
+            <div class="stat-value" id="kpiVol">Rs.0</div>
+            <div class="stat-sub">total transaction amount</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Flagged / Blocked</div>
+            <div class="stat-value" id="kpiFlagged">0</div>
+            <div class="stat-sub">anomaly detections</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Blockchain Blocks</div>
+            <div class="stat-value" id="kpiBlocks">1</div>
+            <div class="stat-sub"><span class="pill ok" id="kpiIntact">INTACT</span></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="panel">
+            <div class="section-title">System Mode</div>
+            <div class="architecture">
+              <strong>Current flow:</strong><br>
+              User input -> manual server metrics -> anomaly model -> AI server model -> blockchain record.<br><br>
+              <strong>Important:</strong><br>
+              No real backend servers run in this version. No live `requests.post()` routing happens. The selected server is a decision outcome produced entirely inside the simulator.
+            </div>
+          </div>
+          <div class="panel">
+            <div class="section-title">Viva Summary</div>
+            <div class="architecture">
+              "This version uses simulated servers where performance metrics are provided manually, anomaly detection uses the observed metrics signal, and the AI-driven decision engine selects a server through model.pkl, scaler.pkl, label_encoder.pkl, and feature_cols.csv."
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-send">
+        <div class="grid-2">
+          <div class="panel">
+            <div class="section-title">Send Payment</div>
+
+            <div class="form-row mb">
+              <div class="form-group">
+                <label>Sender Account</label>
+                <input id="sender" type="text" value="ACC-9821" placeholder="ACC-001"/>
+              </div>
+              <div class="form-group">
+                <label>Receiver Account</label>
+                <input id="receiver" type="text" value="ACC-5544" placeholder="ACC-002"/>
+              </div>
+            </div>
+
+            <div class="form-row mb">
+              <div class="form-group">
+                <label>Amount (Rs.)</label>
+                <input id="amount" type="number" min="1" value="5000"/>
+              </div>
+              <div class="form-group">
+                <label>Failed Logins</label>
+                <input id="failedLogins" type="number" min="0" max="10" value="0"/>
+              </div>
+            </div>
+
+            <div class="form-row mb">
+              <div class="form-group">
+                <label>IP Change</label>
+                <select id="ipChange">
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Device Change</label>
+                <select id="deviceChange">
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="section-title">Simulated Server Metrics</div>
+            <div class="section-sub">Enter the manual metrics for Server-A, Server-B, and Server-C.</div>
+
+            <div class="server-metrics-grid mb">
+              <div class="server-card">
+                <h4>Server-A</h4>
+                <div class="form-group"><label>CPU %</label><input id="cpuA" type="number" min="0" max="100" value="65"/></div>
+                <div class="form-group"><label>Memory %</label><input id="memoryA" type="number" min="0" max="100" value="50"/></div>
+                <div class="form-group"><label>Latency (ms)</label><input id="latencyA" type="number" min="0" value="80"/></div>
+                <div class="form-group"><label>Connections</label><input id="connA" type="number" min="0" value="60"/></div>
+                <div class="form-group"><label>Response (ms)</label><input id="responseA" type="number" min="0" value="110"/></div>
+              </div>
+              <div class="server-card">
+                <h4>Server-B</h4>
+                <div class="form-group"><label>CPU %</label><input id="cpuB" type="number" min="0" max="100" value="40"/></div>
+                <div class="form-group"><label>Memory %</label><input id="memoryB" type="number" min="0" max="100" value="70"/></div>
+                <div class="form-group"><label>Latency (ms)</label><input id="latencyB" type="number" min="0" value="60"/></div>
+                <div class="form-group"><label>Connections</label><input id="connB" type="number" min="0" value="55"/></div>
+                <div class="form-group"><label>Response (ms)</label><input id="responseB" type="number" min="0" value="90"/></div>
+              </div>
+              <div class="server-card">
+                <h4>Server-C</h4>
+                <div class="form-group"><label>CPU %</label><input id="cpuC" type="number" min="0" max="100" value="30"/></div>
+                <div class="form-group"><label>Memory %</label><input id="memoryC" type="number" min="0" max="100" value="40"/></div>
+                <div class="form-group"><label>Latency (ms)</label><input id="latencyC" type="number" min="0" value="50"/></div>
+                <div class="form-group"><label>Connections</label><input id="connC" type="number" min="0" value="45"/></div>
+                <div class="form-group"><label>Response (ms)</label><input id="responseC" type="number" min="0" value="75"/></div>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="btn btn-primary" id="sendBtn" onclick="sendTransaction()">Run Decision</button>
+              <button class="btn btn-ghost" onclick="loadDemo('normal')">Demo Normal</button>
+              <button class="btn btn-ghost btn-danger" onclick="loadDemo('fraud')">Demo Fraud</button>
+              <button class="btn btn-ghost" style="border-color:rgba(210,138,45,.4);color:var(--warning)" onclick="loadDemo('failover')">⚡ Demo Server Fail</button>
+            </div>
+
+            <div class="mt">
+              <div class="section-title">AI Processing Flow</div>
+              <div class="flow" id="flowSteps">
+                <div class="flow-step" id="step0"><div class="step-label">1. User Request</div><div class="step-detail">Payment request received</div></div>
+                <div class="flow-step" id="step1"><div class="step-label">2. Metrics Collected</div><div class="step-detail" id="step1d">CPU, memory, latency, response time, and connections captured</div></div>
+                <div class="flow-step" id="step2"><div class="step-label">3. Anomaly Detection</div><div class="step-detail" id="step2d">Scanning for fraud indicators</div></div>
+                <div class="flow-step" id="step3"><div class="step-label">4. AI Server Selection</div><div class="step-detail" id="step3d">ML inference across 3 simulated servers</div></div>
+                <div class="flow-step" id="step4"><div class="step-label">5. Simulation Result</div><div class="step-detail" id="step4d">Decision recorded without a live server call</div></div>
+                <div class="flow-step" id="step5"><div class="step-label">6. SHA-256 Hash</div><div class="step-detail" id="step5d">Transaction fingerprint generated</div></div>
+                <div class="flow-step" id="step6"><div class="step-label">7. Blockchain Anchored</div><div class="step-detail" id="step6d">Immutable record created</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="section-title">AI Decision Summary</div>
+            <div id="resultEmpty" class="section-sub" style="padding:28px 0;text-align:center">Run a transaction to see the simulated decision here.</div>
+            <div id="resultContent" style="display:none">
+              <div id="statusBanner" class="status-banner"></div>
+
+              <div class="decision-grid">
+                <div class="decision-card">
+                  <div class="decision-title">Selected Server</div>
+                  <div class="decision-val" id="resServer">-</div>
+                  <div class="section-sub" style="margin-top:6px;margin-bottom:0" id="resServerConf">-</div>
+                </div>
+                <div class="decision-card">
+                  <div class="decision-title">Observed Load Signal</div>
+                  <div class="decision-val" id="resTraffic">-</div>
+                  <div class="section-sub" style="margin-top:6px;margin-bottom:0" id="resTrafficConf">-</div>
+                </div>
+              </div>
+
+              <div class="decision-card mt">
+                <div class="decision-title">Risk / Anomaly</div>
+                <div class="risk-wrap">
+                  <div class="risk-num low" id="resRiskNum">0%</div>
+                  <div style="flex:1">
+                    <div class="bar"><div class="bar-fill danger" id="resRiskBar"></div></div>
+                    <div class="section-sub" style="margin-top:8px;margin-bottom:0" id="resRiskSev">-</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt" id="faultToleranceSection" style="display:none">
+                <div class="decision-title">⚡ Fault Tolerance &amp; Failover</div>
+                <div id="ftChain" class="ft-chain"></div>
+                <div id="ftLog" class="ft-log ok" style="margin-top:10px"></div>
+              </div>
+
+              <div class="mt">
+                <div class="decision-title">Simulated Server Metrics</div>
+                <div class="metrics-grid" id="metricsGrid"></div>
+              </div>
+
+              <div class="decision-card mt">
+                <div class="decision-title">Blockchain Record</div>
+                <div class="metric-line"><span>Block</span><strong id="resBlockIdx">-</strong></div>
+                <div class="metric-line"><span>TX ID</span><strong id="resTxId">-</strong></div>
+                <div class="metric-line"><span>TX Hash</span><span class="mono" id="resTxHash">-</span></div>
+              </div>
+
+              <div class="mt">
+                <div class="decision-title">Pipeline Latency</div>
+                <div class="perf-grid" id="perfGrid"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-transactions">
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+            <div class="section-title" style="margin-bottom:0">Transaction Log</div>
+            <button class="btn btn-ghost" onclick="loadTransactions()">Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>TX ID</th>
+                  <th>Sender -> Receiver</th>
+                  <th>Amount</th>
+                  <th>Server</th>
+                  <th>Risk</th>
+                  <th>Status</th>
+                  <th>Block</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="txTableBody">
+                <tr><td colspan="8" class="section-sub" style="text-align:center;padding:28px 0">No transactions yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-blockchain">
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+            <div class="section-title" style="margin-bottom:0">Blockchain</div>
+            <button class="btn btn-ghost" onclick="loadChain()">Refresh</button>
+          </div>
+          <div class="chain-list" id="chainBlocks2"></div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-verify">
+        <div class="panel">
+          <div class="section-title">Verify Transaction</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Transaction Hash or TX ID</label>
+              <input id="verifyTxId" type="text" placeholder="TXN-ABC123 or 3a573a46e04b042017a7..."/>
+            </div>
+            <div class="form-group" style="justify-content:flex-end">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" onclick="verifyTx()">Verify Integrity</button>
+            </div>
+          </div>
+          <div class="verify-result" id="verifyResult">
+            <div style="font-weight:800;margin-bottom:8px" id="verifyVerdict"></div>
+            <div class="mono" id="verifyDetails"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-anomaly">
+        <div class="panel">
+          <div class="section-title">Standalone Anomaly Check</div>
+          <div class="grid-3">
+            <div class="form-group">
+              <label>Requests / Min</label>
+              <input id="aRpm" type="number" min="0" value="45"/>
+            </div>
+            <div class="form-group">
+              <label>Failed Logins</label>
+              <input id="aFl" type="number" min="0" value="0"/>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <input id="aAmt" type="number" min="0" value="5000"/>
+            </div>
+          </div>
+          <div class="grid-3 mt">
+            <div class="form-group">
+              <label>IP Change</label>
+              <select id="aIp"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+              <label>Device Change</label>
+              <select id="aDev"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group" style="justify-content:flex-end">
+              <label>&nbsp;</label>
+              <div class="button-row">
+                <button class="btn btn-primary" onclick="checkAnomaly()">Check</button>
+                <button class="btn btn-ghost btn-danger" onclick="loadAnomalyDemo()">Load Fraud Example</button>
+              </div>
+            </div>
+          </div>
+          <div class="anomaly-result" id="anomalyResult">
+            <div style="font-weight:800;margin-bottom:8px" id="anomalyAction"></div>
+            <div class="section-sub" style="margin-bottom:10px" id="anomalySev"></div>
+            <div class="bar"><div class="bar-fill danger" id="anomalyBar"></div></div>
+            <div class="risk-num low" id="anomalyScore" style="margin-top:12px;font-size:1.8rem">0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = "/api";
+
+function switchTab(id) {
+  const ids = ["dashboard", "send", "transactions", "algorithms", "blockchain", "verify", "anomaly"];
+  document.querySelectorAll(".nav-item").forEach((item, index) => {
+    item.classList.toggle("active", ids[index] === id);
+  });
+  document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
+  document.getElementById(`tab-${id}`).classList.add("active");
+  if (id === "transactions") loadTransactions();
+  if (id === "blockchain") loadChain();
+}
+
+function toast(message, type = "info") {
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.textContent = message;
+  document.getElementById("toastWrap").appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function formatAmount(value) {
+  return `Rs.${Number(value || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+}
+
+function serverPayload() {
+  return {
+    cpu_A: +document.getElementById("cpuA").value,
+    memory_A: +document.getElementById("memoryA").value,
+    latency_A: +document.getElementById("latencyA").value,
+    conn_A: +document.getElementById("connA").value,
+    response_time_A: +document.getElementById("responseA").value,
+    cpu_B: +document.getElementById("cpuB").value,
+    memory_B: +document.getElementById("memoryB").value,
+    latency_B: +document.getElementById("latencyB").value,
+    conn_B: +document.getElementById("connB").value,
+    response_time_B: +document.getElementById("responseB").value,
+    cpu_C: +document.getElementById("cpuC").value,
+    memory_C: +document.getElementById("memoryC").value,
+    latency_C: +document.getElementById("latencyC").value,
+    conn_C: +document.getElementById("connC").value,
+    response_time_C: +document.getElementById("responseC").value,
+  };
+}
+
+function resetFlow() {
+  for (let i = 0; i < 7; i += 1) {
+    document.getElementById(`step${i}`).classList.remove("active", "done", "error");
+  }
+}
+
+function activateStep(index) {
+  if (index > 0) document.getElementById(`step${index - 1}`).classList.add("done");
+  document.getElementById(`step${index}`).classList.add("active");
+}
+
+function finishFlow(ok) {
+  for (let i = 0; i < 7; i += 1) {
+    const node = document.getElementById(`step${i}`);
+    node.classList.remove("active");
+    node.classList.add(ok ? "done" : (i >= 4 ? "error" : "done"));
+  }
+}
+
+function loadDemo(type) {
+  if (type === "normal") {
+    document.getElementById("amount").value = 3500;
+    document.getElementById("failedLogins").value = 0;
+    document.getElementById("ipChange").value = 0;
+    document.getElementById("deviceChange").value = 0;
+    document.getElementById("cpuA").value = 68;
+    document.getElementById("memoryA").value = 52;
+    document.getElementById("latencyA").value = 90;
+    document.getElementById("connA").value = 75;
+    document.getElementById("responseA").value = 130;
+    document.getElementById("cpuB").value = 42;
+    document.getElementById("memoryB").value = 66;
+    document.getElementById("latencyB").value = 58;
+    document.getElementById("connB").value = 54;
+    document.getElementById("responseB").value = 88;
+    document.getElementById("cpuC").value = 28;
+    document.getElementById("memoryC").value = 41;
+    document.getElementById("latencyC").value = 47;
+    document.getElementById("connC").value = 43;
+    document.getElementById("responseC").value = 72;
+    toast("Normal simulator scenario loaded", "info");
+  } else if (type === "failover") {
+    document.getElementById("amount").value = 12000;
+    document.getElementById("failedLogins").value = 0;
+    document.getElementById("ipChange").value = 0;
+    document.getElementById("deviceChange").value = 0;
+    document.getElementById("cpuA").value = 100;
+    document.getElementById("memoryA").value = 95;
+    document.getElementById("latencyA").value = 520;
+    document.getElementById("connA").value = 2000;
+    document.getElementById("responseA").value = 600;
+    document.getElementById("cpuB").value = 45;
+    document.getElementById("memoryB").value = 60;
+    document.getElementById("latencyB").value = 70;
+    document.getElementById("connB").value = 80;
+    document.getElementById("responseB").value = 110;
+    document.getElementById("cpuC").value = 30;
+    document.getElementById("memoryC").value = 38;
+    document.getElementById("latencyC").value = 45;
+    document.getElementById("connC").value = 50;
+    document.getElementById("responseC").value = 80;
+    toast("⚡ Server-A failure scenario loaded – watch fault tolerance reroute!", "info");
+  } else {
+    document.getElementById("amount").value = 48000;
+    document.getElementById("failedLogins").value = 7;
+    document.getElementById("ipChange").value = 1;
+    document.getElementById("deviceChange").value = 1;
+    document.getElementById("cpuA").value = 86;
+    document.getElementById("memoryA").value = 80;
+    document.getElementById("latencyA").value = 130;
+    document.getElementById("connA").value = 140;
+    document.getElementById("responseA").value = 260;
+    document.getElementById("cpuB").value = 64;
+    document.getElementById("memoryB").value = 73;
+    document.getElementById("latencyB").value = 92;
+    document.getElementById("connB").value = 112;
+    document.getElementById("responseB").value = 190;
+    document.getElementById("cpuC").value = 38;
+    document.getElementById("memoryC").value = 46;
+    document.getElementById("latencyC").value = 55;
+    document.getElementById("connC").value = 67;
+    document.getElementById("responseC").value = 95;
+    toast("Fraud simulator scenario loaded", "error");
+  }
+}
+
+async function sendTransaction() {
+  const btn = document.getElementById("sendBtn");
+  btn.disabled = true;
+  btn.textContent = "Running...";
+
+  resetFlow();
+  document.getElementById("resultEmpty").style.display = "none";
+  document.getElementById("resultContent").style.display = "none";
+
+  const payload = {
+    sender: document.getElementById("sender").value.trim(),
+    receiver: document.getElementById("receiver").value.trim(),
+    amount: +document.getElementById("amount").value,
+    failed_logins: +document.getElementById("failedLogins").value,
+    ip_change: +document.getElementById("ipChange").value,
+    device_change: +document.getElementById("deviceChange").value,
+    ...serverPayload(),
+  };
+
+  activateStep(0);
+  await delay(180);
+  activateStep(1);
+  await delay(180);
+  activateStep(2);
+  await delay(180);
+  activateStep(3);
+
+  try {
+    const res = await fetch(`${API}/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (!data.success && data.cluster_status === "DOWN") {
+      finishFlow(false);
+      document.getElementById("step2d").textContent = "Skipped because the cluster is down";
+      document.getElementById("step3d").textContent = "No routing decisions possible";
+      renderClusterDown(data);
+      toast(`${data.error}: ${data.reason}`, "error");
+      return;
+    }
+
+    if (!res.ok) {
+      finishFlow(false);
+      renderApiError(data.error || "Transaction failed");
+      toast(data.error || "Transaction failed", "error");
+      return;
+    }
+
+    await delay(160);
+    activateStep(4);
+    await delay(160);
+    activateStep(5);
+    await delay(160);
+    activateStep(6);
+
+    const ok = data.transaction?.status === "SUCCESS";
+    finishFlow(ok);
+
+    document.getElementById("step1d").textContent = `${data.ai_decisions.observed_metrics_signal.requests_per_min} avg active connections`;
+    document.getElementById("step2d").textContent = `Risk ${data.ai_decisions.anomaly_detection.risk_score}% -> ${data.ai_decisions.anomaly_detection.action}`;
+    document.getElementById("step3d").textContent = `${data.ai_decisions.server_selection.selected_server} selected by ${data.ai_decisions.server_selection.decision_mode}`;
+    document.getElementById("step4d").textContent = data.routing?.message || "Decision simulated in code";
+    document.getElementById("step5d").textContent = `${data.blockchain?.tx_hash?.slice(0, 18) || ""}...`;
+    document.getElementById("step6d").textContent = `Block #${data.blockchain?.block_index}`;
+
+    renderResult(data);
+    refreshStats();
+    toast(ok ? "Simulation completed and logged to blockchain" : "Transaction blocked by anomaly detection", ok ? "success" : "error");
+  } catch (error) {
+    finishFlow(false);
+    renderOfflineResult();
+    toast("Backend offline - start Flask on port 5050", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Run Decision";
+  }
+}
+
+function setBanner(text, tone) {
+  const banner = document.getElementById("statusBanner");
+  banner.className = `status-banner ${tone}`;
+  banner.textContent = text;
+}
+
+function renderFaultTolerance(ft) {
+  const section = document.getElementById("faultToleranceSection");
+  const chainEl = document.getElementById("ftChain");
+  const logEl   = document.getElementById("ftLog");
+
+  if (!ft || !ft.failover_chain || !ft.failover_chain.length) {
+    section.style.display = "none";
+    return;
+  }
+
+  section.style.display = "block";
+
+  chainEl.innerHTML = ft.failover_chain.map(entry => {
+    const isFail    = entry.outcome === "FAILED";
+    const isFailover= entry.outcome === "FAILOVER";
+
+    const stepCls  = isFail ? "ft-fail" : (isFailover ? "ft-warn" : "ft-ok");
+    const badgeCls = isFail ? "fail"    : (isFailover ? "warn"    : "ok");
+    const badgeTxt = isFail ? "FAILED"  : (isFailover ? "FAILOVER": "PRIMARY");
+    const score    = ft.server_scores ? ft.server_scores[entry.server] : "?";
+    const reasons  = Array.isArray(entry.reasons) ? entry.reasons.join(" | ") : (entry.reasons || "");
+
+    return `<div class="ft-step ${stepCls}">
+      <div class="ft-num">${entry.attempt}</div>
+      <div class="ft-info">
+        <div class="ft-server">${entry.server} <span style="font-size:.7rem;color:var(--muted);font-weight:500">(score ${score})</span></div>
+        <div class="ft-action">${entry.action}</div>
+        ${reasons ? `<div class="ft-reasons">${reasons}</div>` : ""}
+      </div>
+      <span class="ft-badge ${badgeCls}">${badgeTxt}</span>
+    </div>`;
+  }).join("");
+
+  const overallFail = ft.fallback_used;
+  const allDead = ft.failover_chain.every(e => e.outcome === "FAILED");
+  const logCls  = allDead ? "fail" : (overallFail ? "warn" : "ok");
+  logEl.className = `ft-log ${logCls}`;
+  logEl.textContent = ft.fault_tolerance_log || "";
+}
+
+function renderOfflineResult() {
+  document.getElementById("resultContent").style.display = "block";
+  setBanner("Backend offline - start Flask on port 5050", "info");
+}
+
+function renderApiError(message) {
+  document.getElementById("resultContent").style.display = "block";
+  setBanner(message, "bad");
+}
+
+function formatReasons(reasons) {
+  if (!Array.isArray(reasons) || !reasons.length) {
+    return "Marked DOWN";
+  }
+  return reasons.join(" | ");
+}
+
+function renderClusterDown(data) {
+  document.getElementById("resultContent").style.display = "block";
+  setBanner(`${data.error}: ${data.reason}`, "bad");
+
+  document.getElementById("resServer").textContent = "ALL SERVERS DOWN";
+  document.getElementById("resServerConf").textContent = data.reason || "503 - Cluster saturated";
+  document.getElementById("resTraffic").textContent = "-";
+  document.getElementById("resTrafficConf").textContent = data.cluster_status || "DOWN";
+
+  const riskNode = document.getElementById("resRiskNum");
+  riskNode.textContent = "N/A";
+  riskNode.className = "risk-num high";
+  document.getElementById("resRiskBar").style.width = "100%";
+  document.getElementById("resRiskSev").textContent = "No anomaly check or routing run while cluster is down";
+
+  document.getElementById("metricsGrid").innerHTML = Object.entries(data.servers || {}).map(([name, metrics]) => `
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-name">${name}</div>
+        <span class="pill bad">${metrics.status || "OVERLOADED"}</span>
+      </div>
+      <div class="metric-line"><span>CPU</span><strong>${Number(metrics.cpu || 0).toFixed(1)}%</strong></div>
+      <div class="metric-line"><span>Memory</span><strong>${Number(metrics.memory || 0).toFixed(1)}%</strong></div>
+      <div class="metric-line"><span>Latency</span><strong>${Number(metrics.latency || 0).toFixed(1)} ms</strong></div>
+      <div class="metric-line"><span>Response</span><strong>${Number(metrics.response_time || 0).toFixed(1)} ms</strong></div>
+      <div class="metric-line"><span>Connections</span><strong>${metrics.connections?.limit ? `${metrics.connections.current} / ${metrics.connections.limit} (${metrics.connections.usage_pct}%)` : Number(metrics.connections || 0)}</strong></div>
+      <div class="metric-line"><span>Reason</span><strong>${formatReasons(metrics.reasons)}</strong></div>
+    </div>
+  `).join("");
+
+  document.getElementById("resBlockIdx").textContent = "-";
+  document.getElementById("resTxId").textContent = "Not stored";
+  document.getElementById("resTxHash").textContent = "No blockchain record created";
+  document.getElementById("perfGrid").innerHTML = Object.entries(data.performance || {}).map(([key, value]) => `
+    <div class="perf-card">
+      <div class="decision-title">${key.replaceAll("_", " ")}</div>
+      <div class="decision-val">${value} ms</div>
+    </div>
+  `).join("");
+}
+
+function renderMetricsComparison(selection, allMetrics, serverHealth = {}) {
+  const grid = document.getElementById("metricsGrid");
+  grid.innerHTML = selection.ranking.map(item => {
+    const metrics = allMetrics[item.server] || {};
+    const health = serverHealth[item.server] || {};
+    const state = health.state || "UP";
+    const selected = item.server === selection.selected_server ? "selected" : "";
+    const badgeClass = state === "DOWN" ? "bad" : state === "UP" ? "ok" : "warn";
+    const badge = item.server === selection.selected_server
+      ? '<span class="pill ok">SELECTED</span>'
+      : `<span class="pill ${badgeClass}">${state}</span>`;
+    const profile = item.profile || {};
+    return `
+      <div class="metric-card ${selected}">
+        <div class="metric-top">
+          <div class="metric-name">${item.server}</div>
+          ${badge}
+        </div>
+        <div class="metric-score">${profile.role || "server"} ${profile.region || ""}</div>
+        <div class="metric-line"><span>CPU</span><strong>${Number(metrics.cpu || 0).toFixed(1)}%</strong></div>
+        <div class="metric-line"><span>Memory</span><strong>${Number(metrics.memory || 0).toFixed(1)}%</strong></div>
+        <div class="metric-line"><span>Latency</span><strong>${Number(metrics.latency || 0).toFixed(1)} ms</strong></div>
+        <div class="metric-line"><span>Connections</span><strong>${health.connections?.limit ? `${health.connections.current} / ${health.connections.limit} (${health.connections.usage_pct}%)` : Number(metrics.connections || 0)}</strong></div>
+        <div class="metric-line"><span>Response</span><strong>${Number(metrics.response_time || 0).toFixed(1)} ms</strong></div>
+        <div class="metric-line"><span>State</span><strong>${state}</strong></div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderResult(data) {
+  const tx = data.transaction;
+  const ai = data.ai_decisions;
+  const perf = data.performance;
+  const ok = tx.status === "SUCCESS";
+
+  document.getElementById("resultContent").style.display = "block";
+  setBanner(
+    ok
+      ? `SUCCESS - ${formatAmount(tx.amount)} recorded for ${tx.receiver}`
+      : "BLOCKED - Suspicious activity detected",
+    ok ? "ok" : "bad"
+  );
+
+  document.getElementById("resServer").textContent = ai.server_selection.selected_server;
+  document.getElementById("resServerConf").textContent = `${ai.server_selection.confidence || 0}% confidence from ${ai.server_selection.model_file}`;
+  document.getElementById("resTraffic").textContent = `${ai.observed_metrics_signal.requests_per_min}`;
+  document.getElementById("resTrafficConf").textContent = ai.observed_metrics_signal.source;
+
+  const risk = ai.anomaly_detection.risk_score;
+  const riskNode = document.getElementById("resRiskNum");
+  riskNode.textContent = `${risk}%`;
+  riskNode.className = `risk-num ${risk > 75 ? "high" : risk > 40 ? "med" : "low"}`;
+  document.getElementById("resRiskBar").style.width = `${risk}%`;
+  document.getElementById("resRiskSev").textContent = `${ai.anomaly_detection.severity} risk -> ${ai.anomaly_detection.action}`;
+
+  renderMetricsComparison(ai.server_selection, ai.all_server_metrics, ai.server_health);
+
+  // Fault Tolerance panel
+  renderFaultTolerance(data.fault_tolerance);
+
+  // Update Step 3 label to show if failover was triggered
+  if (data.fault_tolerance && data.fault_tolerance.fallback_used) {
+    document.getElementById("step3d").textContent =
+      `AI picked ${data.fault_tolerance.ai_selected} \u2192 FAULT DETECTED \u2192 rerouted to ${data.fault_tolerance.routed_server}`;
+  }
+
+  document.getElementById("resBlockIdx").textContent = `#${data.blockchain.block_index}`;
+  document.getElementById("resTxId").textContent = tx.tx_id;
+  document.getElementById("resTxHash").textContent = data.blockchain.tx_hash;
+
+  document.getElementById("perfGrid").innerHTML = Object.entries(perf).map(([key, value]) => `
+    <div class="perf-card">
+      <div class="decision-title">${key.replaceAll("_", " ")}</div>
+      <div class="decision-val">${value} ms</div>
+    </div>
+  `).join("");
+}
+
+function riskClass(score) {
+  if (score > 75) return "pill bad";
+  if (score > 40) return "pill warn";
+  return "pill ok";
+}
+
+async function loadTransactions() {
+  try {
+    const res = await fetch(`${API}/transactions`);
+    const data = await res.json();
+    const tbody = document.getElementById("txTableBody");
+    if (!data.transactions.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="section-sub" style="text-align:center;padding:28px 0">No transactions yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.transactions.map(tx => `
+      <tr>
+        <td class="mono">${tx.tx_id}</td>
+        <td>${tx.sender} -> ${tx.receiver}</td>
+        <td>${formatAmount(tx.amount)}</td>
+        <td>${tx.server}</td>
+        <td><span class="${riskClass(tx.risk_score)}">${tx.risk_score}%</span></td>
+        <td><span class="${tx.status === "SUCCESS" ? "pill ok" : "pill bad"}">${tx.status}</span></td>
+        <td>#${tx.block_index ?? "-"}</td>
+        <td>${tx.timestamp?.slice(11, 19) || "-"}</td>
+      </tr>
+    `).join("");
+  } catch (error) {
+    toast("Could not load transactions", "error");
+  }
+}
+
+async function loadChain() {
+  try {
+    const res = await fetch(`${API}/blockchain?limit=30`);
+    const data = await res.json();
+    const wrap = document.getElementById("chainBlocks2");
+    wrap.innerHTML = data.chain.map(block => `
+      <div class="chain-block">
+        <div class="chain-index">#${block.index}</div>
+        <div>
+          <div class="mono">TX: ${block.tx_hash}</div>
+          <div class="mono" style="margin-top:6px">BK: ${block.block_hash}</div>
+          <div class="mono" style="margin-top:6px">PR: ${block.previous_hash}</div>
+        </div>
+        <div class="section-sub" style="margin:0;text-align:right">${block.timestamp?.slice(11, 19) || "-"}<br>nonce ${block.nonce}</div>
+      </div>
+    `).join("");
+  } catch (error) {
+    toast("Could not load blockchain data", "error");
+  }
+}
+
+async function verifyTx() {
+  const query = document.getElementById("verifyTxId").value.trim();
+  if (!query) {
+    toast("Enter a TX hash or TX ID", "error");
+    return;
+  }
+
+  try {
+    const isTxId = /^TXN-/i.test(query);
+    const res = await fetch(`${API}/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(isTxId ? { tx_id: query } : { tx_hash: query }),
+    });
+    const data = await res.json();
+    const el = document.getElementById("verifyResult");
+    const ok = Boolean(data.integrity_ok);
+    el.style.display = "block";
+    el.style.background = ok ? "rgba(18,116,117,.08)" : "rgba(201,76,76,.08)";
+    el.style.borderColor = ok ? "rgba(18,116,117,.2)" : "rgba(201,76,76,.25)";
+    document.getElementById("verifyVerdict").textContent = data.verdict || "Verification failed";
+    document.getElementById("verifyVerdict").style.color = ok ? "var(--accent)" : "var(--danger)";
+    const mismatchText = data.mismatched_fields?.length ? data.mismatched_fields.join(", ") : "None";
+    document.getElementById("verifyDetails").innerHTML = `
+      TX ID: ${data.tx_id || data.db_record?.tx_id || "-"}<br>
+      Stored Hash: ${data.tx_hash || "-"}<br>
+      Recomputed Hash: ${data.recomputed_hash || "-"}<br>
+      Chain Hash: ${data.chain?.tx_hash || "-"}<br>
+      Block: #${data.chain?.block_index ?? "-"}<br>
+      Metadata Mismatches: ${mismatchText}<br>
+      Integrity Match: ${ok ? "YES" : "NO"}
+    `;
+    if (!res.ok) {
+      toast(data.error || "Verification failed", "error");
+    }
+  } catch (error) {
+    toast("Could not verify transaction", "error");
+  }
+}
+
+async function checkAnomaly() {
+  try {
+    const res = await fetch(`${API}/anomaly-check`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requests_per_min: +document.getElementById("aRpm").value,
+        failed_logins: +document.getElementById("aFl").value,
+        ip_change: +document.getElementById("aIp").value,
+        device_change: +document.getElementById("aDev").value,
+        transaction_amount: +document.getElementById("aAmt").value,
+      }),
+    });
+    const data = await res.json();
+    const panel = document.getElementById("anomalyResult");
+    panel.style.display = "block";
+    panel.style.background = data.is_anomaly ? "rgba(201,76,76,.08)" : "rgba(18,116,117,.08)";
+    panel.style.borderColor = data.is_anomaly ? "rgba(201,76,76,.25)" : "rgba(18,116,117,.2)";
+    document.getElementById("anomalyAction").textContent = data.is_anomaly ? "BLOCKED - Anomaly detected" : "ALLOWED - Normal behavior";
+    document.getElementById("anomalyAction").style.color = data.is_anomaly ? "var(--danger)" : "var(--accent)";
+    document.getElementById("anomalySev").textContent = `Severity ${data.severity} | Risk ${data.risk_score}%`;
+    document.getElementById("anomalyBar").style.width = `${data.risk_score}%`;
+    const score = document.getElementById("anomalyScore");
+    score.textContent = `${data.risk_score}%`;
+    score.className = `risk-num ${data.risk_score > 75 ? "high" : data.risk_score > 40 ? "med" : "low"}`;
+  } catch (error) {
+    toast("Could not run anomaly check", "error");
+  }
+}
+
+function loadAnomalyDemo() {
+  document.getElementById("aRpm").value = 150;
+  document.getElementById("aFl").value = 7;
+  document.getElementById("aIp").value = 1;
+  document.getElementById("aDev").value = 1;
+  document.getElementById("aAmt").value = 48000;
+  toast("Fraud example loaded", "error");
+}
+
+async function refreshStats() {
+  try {
+    const res = await fetch(`${API}/stats`);
+    const data = await res.json();
+    const tx = data.transactions;
+    const bc = data.blockchain;
+    document.getElementById("kpiTotal").textContent = tx.total_transactions;
+    document.getElementById("kpiVol").textContent = formatAmount(tx.total_volume_inr || 0);
+    document.getElementById("kpiFlagged").textContent = tx.flagged;
+    document.getElementById("kpiBlocks").textContent = bc.blocks;
+    const intact = document.getElementById("kpiIntact");
+    intact.textContent = bc.intact ? "INTACT" : "BROKEN";
+    intact.className = `pill ${bc.intact ? "ok" : "bad"}`;
+  } catch (error) {
+    toast("Could not refresh dashboard stats", "error");
+  }
+}
+
+refreshStats();
+</script>
+</body>
+</html>

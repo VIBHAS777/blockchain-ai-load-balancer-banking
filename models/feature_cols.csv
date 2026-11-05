@@ -1,0 +1,15 @@
+cpu_a
+cpu_b
+cpu_c
+memory_a
+memory_b
+memory_c
+connections_a
+connections_b
+connections_c
+latency_a
+latency_b
+latency_c
+response_time_a
+response_time_b
+response_time_c
